@@ -1,7 +1,6 @@
 const { createServer } = require('http');
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
-const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
+const { ApolloServer } = require('apollo-server-express');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { stitchingDirectives } = require('@graphql-tools/stitching-directives');
 const { stitchingDirectivesTypeDefs, stitchingDirectivesValidator } = stitchingDirectives();
@@ -40,7 +39,6 @@ const typeDefs = `
       keyField: "id"
       keyArg: "ids"
     )
-    _districts(id: ID): [District] @merge
     """
     divisions(ids: [ID]): [Division] @merge(
       keyField: "id"
@@ -53,36 +51,23 @@ const typeDefs = `
 const resolvers = {
   Division: {
     districts: (division) => {
-      console.log('*************************', division);
+      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', division);
       return [{id: division.id}]
-    }
-  },
-  District: {
-    id: (root) => {
-      console.log('&&&&&&&&&&&&&&&&&&&&&&&&&', root);
-      return root.id
     }
   },
   Query: {
     // division: async (_, args) => {
-    //   console.log('$$$$$$$$$$$$$$$$$$$$$$$$$', args);
     //   return divisions.find(division => division.id = args.id)
     // },
     divisions: async (_, args) => {
-      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', _, args);
       let result = [];
       const { ids } = args;
       if (!ids) {
         return divisions;
       }
       result = divisions.filter(division => ids.includes(division.id))
-      console.log('#########################', result);
       return result;
     },
-    // _districts: async (_, args) => {
-    //   console.log('@@@@@@@@@@@_districts@@@@@@@@@@@', _, args);
-    //   return {};
-    // },
     _sdl: () => typeDefs
   }
 }
@@ -96,18 +81,11 @@ async function init () {
 
   const schema = makeExecutableSchema({
     typeDefs,
-    resolvers,
-    plugins: [
-      ApolloServerPluginLandingPageGraphQLPlayground(),
-    ],
+    resolvers
   });
 
   const server = new ApolloServer({
-    schema,
-    context() {
-      // lookup userId by token, etc.
-      return {};
-    },
+    schema
   });
   await server.start();
   server.applyMiddleware({ app });

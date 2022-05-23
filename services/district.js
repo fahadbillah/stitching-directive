@@ -1,16 +1,9 @@
-// const Fastify = require('fastify')
-// const mercurius = require('mercurius')
 const { createServer } = require('http');
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
-const { ApolloServerPluginLandingPageLocalDefault } = require('apollo-server-core');
+const { ApolloServer } = require('apollo-server-express');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { stitchingDirectives } = require('@graphql-tools/stitching-directives');
 const { stitchingDirectivesTypeDefs, stitchingDirectivesValidator } = stitchingDirectives();
-
-const buildContext = require('./context');
-
-// const app = Fastify()
 
 const districts = [
   {
@@ -65,7 +58,6 @@ type Query {
     keyArg: "id"
   )
   """
-  _divisions(id: ID): [Division] @merge
   districts(ids: [ID]): [District] @merge(
     keyField: "id"
     keyArg: "ids"
@@ -77,41 +69,26 @@ type Query {
   const resolvers = {
     District: {
       division: (district) => {
-        console.log('*************************', district);
-        // return district.divisionId;
         return {id: district.divisionId}
       }
     },
-    // Division: {
-    //   id: (root) => {
-    //     console.log('&&&&&&&&&&&&&&&&&&&&&&&&&', root);
-    //     return root.id
-    //   }
-    // },
     Query: {
       // district: async (_, args) => {
       //   let result = [];
       //   const { id } = args;
-      //   console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', _, args);
       //   // result = districts.find(district => district.divisionId === id)
       //   result = districts.filter(district => district.divisionId === id)
-      //   console.log('#########################', result);
       //   return result;
       // },
       districts: async (_, args) => {
         let result = [];
         const { ids } = args;
-        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', args);
         if (!ids) {
           return districts;
         }
         result = districts.filter(district => ids.includes(district.divisionId))
-        console.log('#########################', result);
+        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', result);
         return result;
-      },
-      _divisions: async (_, args) => {
-        console.log('@@@@@@@@@@@_divisions@@@@@@@@@@@', _, args);
-        return {};
       },
       _sdl: () => typeDefs
     }
@@ -126,18 +103,10 @@ async function init () {
   const schema = makeExecutableSchema({
     typeDefs,
     resolvers,
-    playground: true,
-    plugins: [
-      ApolloServerPluginLandingPageLocalDefault(),
-    ],
   });
 
   const server = new ApolloServer({
-    schema,
-    context() {
-      // lookup userId by token, etc.
-      return {};
-    },
+    schema
   });
   await server.start();
   server.applyMiddleware({ app });

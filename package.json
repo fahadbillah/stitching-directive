@@ -2,13 +2,9 @@
   "name": "stitching-poc",
   "version": "1.0.0",
   "scripts": {
-    "s1": "nodemon services/book",
-    "s2": "nodemon services/author",
-    "s3": "nodemon services/publisher",
-    "s4": "nodemon services/division",
-    "s5": "nodemon services/district",
-    "gateway": "nodemon --delay 1 --inspect=127.0.0.1:9230 services/gateway",
-    "newg": "nodemon --delay 1 --inspect=127.0.0.1:9231 services/gateway-2"
+    "division": "nodemon services/division",
+    "district": "nodemon services/district",
+    "gateway": "nodemon --delay 1 services/gateway-2"
   },
   "main": "index.js",
   "license": "MIT",
