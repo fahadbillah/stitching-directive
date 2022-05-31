@@ -56,7 +56,7 @@ type Query {
     keyField: "id"
     keyArg: "ids"
     )
-  _sdl: String!
+    _sdl: String!
   }
   `
   
@@ -76,28 +76,28 @@ type Query {
   }
   
   
-async function init () {
-  const app = express();
-
-  const httpServer = createServer(app);
-
-  const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
-  });
-
-  const server = new ApolloServer({
-    schema
-  });
-  await server.start();
-  server.applyMiddleware({ app });
-
-  const PORT = 3005;
-  httpServer.listen(PORT, () =>
+  async function init () {
+    const app = express();
+    
+    const httpServer = createServer(app);
+    
+    const schema = makeExecutableSchema({
+      typeDefs,
+      resolvers,
+    });
+    
+    const server = new ApolloServer({
+      schema
+    });
+    await server.start();
+    server.applyMiddleware({ app });
+    
+    const PORT = 3005;
+    httpServer.listen(PORT, () =>
     console.log(`District server is now running on http://localhost:${PORT}/graphql`)
-  );
-}
-
-Promise.resolve(init()).catch((_reason) => {
-  console.log('+++++++++++++++++++++++++', _reason);
-});
+    );
+  }
+  
+  Promise.resolve(init()).catch((_reason) => {
+    console.log('+++++++++++++++++++++++++', _reason);
+  });
