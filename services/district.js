@@ -52,12 +52,6 @@ type Division {
 }
 
 type Query {
-  """
-  district(id: ID): District @merge(
-    keyField: "id"
-    keyArg: "id"
-  )
-  """
   districts(ids: [ID]): [District] @merge(
     keyField: "id"
     keyArg: "ids"
@@ -68,27 +62,14 @@ type Query {
   
   const resolvers = {
     District: {
-      division: (district) => {
-        return {id: district.divisionId}
-      }
+      division: (district) => ({id: district.divisionId})
     },
     Query: {
-      // district: async (_, args) => {
-      //   let result = [];
-      //   const { id } = args;
-      //   // result = districts.find(district => district.divisionId === id)
-      //   result = districts.filter(district => district.divisionId === id)
-      //   return result;
-      // },
-      districts: async (_, args) => {
-        let result = [];
-        const { ids } = args;
+      districts: async (_, { ids }) => {
         if (!ids) {
           return districts;
         }
-        result = districts.filter(district => ids.includes(district.divisionId))
-        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@', result);
-        return result;
+        return districts.filter(district => ids.includes(district.divisionId))
       },
       _sdl: () => typeDefs
     }
